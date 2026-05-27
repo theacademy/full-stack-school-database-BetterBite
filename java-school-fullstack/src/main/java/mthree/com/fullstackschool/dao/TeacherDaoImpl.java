@@ -23,8 +23,21 @@ public class TeacherDaoImpl implements TeacherDao {
     public Teacher createNewTeacher(Teacher teacher) {
         //YOUR CODE STARTS HERE
 
-        return null;
+        String sql = "INSERT INTO teacher (tFName, tLName, dept) VALUES (?, ?, ?)";
+        GeneratedKeyHolder kh = new GeneratedKeyHolder();
 
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, teacher.getTeacherFName());
+            ps.setString(2, teacher.getTeacherLName());
+            ps.setString(3, teacher.getDept());
+            return ps;
+        }, kh);
+
+        //get the acquiered new key entry from the keyholder 
+        teacher.setTeacherId(kh.getKey().intValue());
+
+        return teacher;
         //YOUR CODE ENDS HERE
     }
 
@@ -32,7 +45,7 @@ public class TeacherDaoImpl implements TeacherDao {
     public List<Teacher> getAllTeachers() {
         //YOUR CODE STARTS HERE
 
-        return null;
+        return jdbcTemplate.query("SELECT * FROM teacher", new TeacherMapper());
 
         //YOUR CODE ENDS HERE
     }
@@ -41,7 +54,7 @@ public class TeacherDaoImpl implements TeacherDao {
     public Teacher findTeacherById(int id) {
         //YOUR CODE STARTS HERE
 
-        return null;
+        return jdbcTemplate.queryForObject("SELECT * FROM teacher WHERE tid = ?", new TeacherMapper(), id);
 
         //YOUR CODE ENDS HERE
     }
@@ -50,7 +63,8 @@ public class TeacherDaoImpl implements TeacherDao {
     public void updateTeacher(Teacher t) {
         //YOUR CODE STARTS HERE
 
-
+        jdbcTemplate.update("UPDATE teacher SET tFName = ?, tLName = ?, dept = ? WHERE tid = ?", t.getTeacherFName(), t.getTeacherLName(), t.getDept(), t.getTeacherId());
+        
         //YOUR CODE ENDS HERE
     }
 
@@ -58,6 +72,7 @@ public class TeacherDaoImpl implements TeacherDao {
     public void deleteTeacher(int id) {
         //YOUR CODE STARTS HERE
 
+        jdbcTemplate.update("DELETE FROM teacher WHERE tid = ?", id);
 
         //YOUR CODE ENDS HERE
     }

@@ -27,11 +27,17 @@ public class StudentDaoImpl implements StudentDao {
     @Transactional
     public Student createNewStudent(Student student) {
         //YOUR CODE STARTS HERE
+        String sql = "INSERT INTO student (fName, lName) VALUES (?, ?)";
+        GeneratedKeyHolder kh = new GeneratedKeyHolder();
+        jdbcTemplate.update(con ->{
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, student.getStudentFirstName());
+            ps.setString(2, student.getStudentLastName());
+            return ps;
+        }, kh);
 
-
-        return null;
-
-
+        student.setStudentId(0);
+        return student;
         //YOUR CODE ENDS HERE
     }
 
@@ -40,7 +46,7 @@ public class StudentDaoImpl implements StudentDao {
         //YOUR CODE STARTS HERE
 
 
-        return null;
+        return jdbcTemplate.query("SELECT * FROM student", new StudentMapper());
 
         //YOUR CODE ENDS HERE
     }
@@ -49,7 +55,7 @@ public class StudentDaoImpl implements StudentDao {
     public Student findStudentById(int id) {
         //YOUR CODE STARTS HERE
 
-        return null;
+        return jdbcTemplate.queryForObject("SELECT * FROM student WHERE sid = ?", new StudentMapper(), id);
 
         //YOUR CODE ENDS HERE
     }
@@ -58,6 +64,7 @@ public class StudentDaoImpl implements StudentDao {
     public void updateStudent(Student student) {
         //YOUR CODE STARTS HERE
 
+        jdbcTemplate.update("UPDATE student SET fName = ?, lName = ? WHERE sid = ?", student.getStudentFirstName(), student.getStudentLastName(), student.getStudentId());
 
         //YOUR CODE ENDS HERE
     }
@@ -65,16 +72,17 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     public void deleteStudent(int id) {
         //YOUR CODE STARTS HERE
-
-
+        
+        jdbcTemplate.update("DELETE FROM student WHERE sid = ?", id);
+        
         //YOUR CODE ENDS HERE
     }
 
     @Override
     public void addStudentToCourse(int studentId, int courseId) {
         //YOUR CODE STARTS HERE
-
-
+        
+        jdbcTemplate.update("INSERT INTO course_student(student_id, course_id) VALUES(?, ?)", studentId, courseId);
 
         //YOUR CODE ENDS HERE
     }
@@ -83,7 +91,7 @@ public class StudentDaoImpl implements StudentDao {
     public void deleteStudentFromCourse(int studentId, int courseId) {
         //YOUR CODE STARTS HERE
 
-
+        jdbcTemplate.update("DELETE FROM course_student WHERE student_id = ? AND course_id = ?", studentId, courseId);
 
         //YOUR CODE ENDS HERE
     }

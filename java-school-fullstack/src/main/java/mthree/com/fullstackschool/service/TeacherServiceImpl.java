@@ -12,13 +12,19 @@ public class TeacherServiceImpl implements TeacherServiceInterface {
 
     //YOUR CODE STARTS HERE
 
+    @Autowired
+    TeacherDao teacherDao;
+
+    public TeacherServiceImpl(TeacherDao teacherDao) {
+        this.teacherDao = teacherDao;
+    }
 
     //YOUR CODE ENDS HERE
 
     public List<Teacher> getAllTeachers() {
         //YOUR CODE STARTS HERE
 
-        return null;
+        return teacherDao.getAllTeachers();
 
         //YOUR CODE ENDS HERE
     }
@@ -26,8 +32,14 @@ public class TeacherServiceImpl implements TeacherServiceInterface {
     public Teacher getTeacherById(int id) {
         //YOUR CODE STARTS HERE
 
-
-            return null;
+        try {
+            return teacherDao.findTeacherById(id);
+        } catch (DataAccessException e) {
+            Teacher teacher = new Teacher();
+            teacher.setTeacherFName("Teacher Not Found");
+            teacher.setTeacherLName("Teacher Not Found");
+            return teacher;
+        }
 
         //YOUR CODE ENDS HERE
     }
@@ -35,8 +47,15 @@ public class TeacherServiceImpl implements TeacherServiceInterface {
     public Teacher addNewTeacher(Teacher teacher) {
         //YOUR CODE STARTS HERE
 
+        boolean fNameBlank = (teacher.getTeacherFName() == null || teacher.getTeacherFName().isBlank());
+        boolean lNameBlank = (teacher.getTeacherLName() == null || teacher.getTeacherLName().isBlank());
 
-        return null;
+        // i can't put this in one big if statement because the requirements say 'or' not 'and'
+        if (fNameBlank) teacher.setTeacherFName("First Name blank, teacher NOT added");
+        if (lNameBlank) teacher.setTeacherLName("Last Name blank, teacher NOT added");
+        if (fNameBlank || lNameBlank) return teacher;
+
+        return teacherDao.createNewTeacher(teacher);
 
         //YOUR CODE ENDS HERE
     }
@@ -44,8 +63,15 @@ public class TeacherServiceImpl implements TeacherServiceInterface {
     public Teacher updateTeacherData(int id, Teacher teacher) {
         //YOUR CODE STARTS HERE
 
+        if (id != teacher.getTeacherId()) {
+            teacher.setTeacherFName("IDs do not match, teacher not updated");
+            teacher.setTeacherLName("IDs do not match, teacher not updated");
+            return teacher;
+        }
 
-        return null;
+        teacherDao.updateTeacher(teacher);
+        return teacherDao.findTeacherById(id);
+
 
         //YOUR CODE ENDS HERE
     }
@@ -53,7 +79,7 @@ public class TeacherServiceImpl implements TeacherServiceInterface {
     public void deleteTeacherById(int id) {
         //YOUR CODE STARTS HERE
 
-
+        teacherDao.deleteTeacher(id);
 
         //YOUR CODE ENDS HERE
     }
